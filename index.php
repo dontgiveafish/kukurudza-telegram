@@ -7,12 +7,19 @@ try {
     $config = require_once __DIR__ . '/config.php';
     $bot = new \TelegramBot\Api\Client($config['bot_token'], $config['bot_tracker']);
 
-    $bot->on(function($message) use ($bot, $config){
+    $givemesomemoviesbutton = [
+        'text' => 'Give me some movies!',
+        'request_location' => true,
+    ];
+
+    $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup([[$givemesomemoviesbutton]], null, true);
+
+    $bot->on(function($message) use ($bot, $config, $keyboard){
 
         $location = $message->getLocation();
 
         if (empty($location)) {
-            $bot->sendMessage($message->getChat()->getId(), 'Please give me your location first');
+            $bot->sendMessage($message->getChat()->getId(), 'Please give me your location first', false, null, null, $keyboard);
             return;
         }
 
@@ -34,7 +41,7 @@ try {
         $bills = @json_decode($str, true);
 
         if (empty($bills)) {
-            $bot->sendMessage($message->getChat()->getId(), 'It is sad, but nothing is found. Try another location or time.');
+            $bot->sendMessage($message->getChat()->getId(), 'It is sad, but nothing is found. Try another location or time.', false, null, null, $keyboard);
             return;
         }
 
