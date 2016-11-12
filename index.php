@@ -167,9 +167,16 @@ try {
 
             $time = date('H:i', strtotime($bill['time']));
 
+            $genres = $bill['movie']['genres'] ?: '';
+            if (!empty($genres)) {
+                $genres = implode(', ', array_column($genres, 'title')) . PHP_EOL;
+            }
+
             $output .=
                 "<b>$time</b> " . "<a href='kinoafisha.ua/ua/cinema/{$bill['city']['alias']}/{$bill['cinema']['alias']}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
-                "<a href='http://kinoafisha.ua/ua/films/{$bill['movie']['alias']}'>{$bill['movie']['title']}</a>" . PHP_EOL . PHP_EOL;
+                "<a href='http://kinoafisha.ua/ua/films/{$bill['movie']['alias']}'>{$bill['movie']['title']}</a>" . PHP_EOL .
+                $genres .
+                PHP_EOL;
         }
 
         $bot->sendMessage($message->getChat()->getId(), $output, 'HTML', true, null, $keyboard);
