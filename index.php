@@ -167,13 +167,28 @@ try {
 
             $time = date('H:i', strtotime($bill['time']));
 
+            // count movie end time
+            if ($bill['movie']['duration']) {
+
+                // add trailers and ceil duration to five minutes
+                $duration = $bill['movie']['duration'];
+                $duration = ceil($duration / 5) * 5 + 10;
+
+                $endtime = DateTime::createFromFormat('H:i:s', $bill['time']);
+                $endtime->modify("+{$duration} minutes");
+                $endtime = $endtime->format('H:i');
+
+                $time = "{$time}-{$endtime}";
+            }
+
             $genres = $bill['movie']['genres'] ?: '';
             if (!empty($genres)) {
                 $genres = implode(', ', array_column($genres, 'title')) . PHP_EOL;
             }
 
             $output .=
-                "<b>$time</b> " . "<a href='kinoafisha.ua/ua/cinema/{$bill['city']['alias']}/{$bill['cinema']['alias']}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
+                "<b>$time</b> " . PHP_EOL .
+                "<a href='kinoafisha.ua/ua/cinema/{$bill['city']['alias']}/{$bill['cinema']['alias']}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
                 "<a href='http://kinoafisha.ua/ua/films/{$bill['movie']['alias']}'>{$bill['movie']['title']}</a>" . PHP_EOL .
                 $genres .
                 PHP_EOL;
