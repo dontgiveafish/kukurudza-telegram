@@ -1,5 +1,6 @@
 {
     "require": {
-        "telegram-bot/api": "^2.2"
+        "telegram-bot/api": "^2.2",
+        "mixpanel/mixpanel-php" : "2.*"
     }
 }

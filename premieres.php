@@ -10,6 +10,8 @@ $date_from = new DateTime('next thursday', new \DateTimeZone('Europe/Kiev'));
 $date_to = clone $date_from;
 $date_to->modify('+6 days');
 
+$mp = Mixpanel::getInstance($config['mixpanel_project_token']);
+
 // build and call query
 
 $query = http_build_query([
@@ -62,5 +64,12 @@ foreach ($states as $state) {
     $user_message = "Привіт, {$user_name}, ось прем'єри цього тижня:\n\n{$message}";
 
     $bot->sendMessage($chat_id, $user_message, 'HTML', true);
+
+    // track
+
+    $mp->track('telegram_message_sent', [
+        'subject' => 'premieres',
+        'chat_id' => $chat_id,
+    ]);
 
 }

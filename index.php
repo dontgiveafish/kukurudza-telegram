@@ -7,7 +7,7 @@ try {
     $config = require_once __DIR__ . '/config.php';
     $bot = new \TelegramBot\Api\Client($config['bot_token'], $config['bot_tracker']);
 
-    $bot->on(function(\TelegramBot\Api\Types\Message $message) use ($bot, $config){
+    $bot->on(function(\TelegramBot\Api\Types\Message $message) use ($bot, $config) {
 
         // more config
 
@@ -24,6 +24,16 @@ try {
         $location = $message->getLocation();
         $text = $message->getText();
         $state_id = $chat->getId();
+
+        // track something
+
+        $mp = Mixpanel::getInstance($config['mixpanel_project_token']);
+
+        $mp->registerAll([
+            'chat_id' => $state_id,
+        ]);
+
+        $mp->track('telegram_message_received');
 
         if (empty($location)) {
 
@@ -151,6 +161,14 @@ try {
 
         $str = file_get_contents("{$url}?{$query}");
         $bills = @json_decode($str, true);
+
+        // track playbill count
+
+        $mp->track('telegram_playbill_request', [
+            'time_d' => $time_d,
+            'distance_d' => $distance_d,
+            'found' => count($bills),
+        ]);
 
         // process empty bill
 
