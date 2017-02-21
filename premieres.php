@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/lib/Buzz/Service.php';
 
 $config = require_once __DIR__ . '/config.php';
 
@@ -14,13 +15,16 @@ $mp = Mixpanel::getInstance($config['mixpanel_project_token']);
 
 // build and call query
 
-$query = http_build_query([
+$home = new Buzz\Service('cinema');
+
+$movies = $home->call('site/premieres', [
     'date_from' => $date_from->format('Y-m-d'),
     'date_to' => $date_to->format('Y-m-d'),
 ]);
 
-$str = file_get_contents("{$url}?{$query}");
-$movies = @json_decode($str);
+if (empty($movies)) {
+    die('nothing to show');
+}
 
 $message = '';
 

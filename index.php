@@ -1,6 +1,7 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/lib/Buzz/Service.php';
 
 try {
 
@@ -118,7 +119,7 @@ try {
 
         $url = $config['api_url'] . 'site/filter';
 
-        $time_from = new \DateTime('now', new \DateTimeZone('Europe/Kiev'));
+        $time_from = (new \DateTime('now', new \DateTimeZone('Europe/Kiev')))->modify('-5 hours');
         $time_to = clone $time_from;
         $time_to->modify('+1 hour');
 
@@ -150,7 +151,9 @@ try {
 
         // build and call query
 
-        $query = http_build_query([
+        $home = new Buzz\Service('cinema');
+
+        $bills = $home->call('site/filter', [
             'time_from' => $time_from->format('H:i'),
             'time_to' => $time_to->format('H:i'),
             'position_lat' => $location->getLatitude(),
@@ -158,9 +161,6 @@ try {
             'mind' => $mind,
             'maxd' => $maxd,
         ]);
-
-        $str = file_get_contents("{$url}?{$query}");
-        $bills = @json_decode($str, true);
 
         // track playbill count
 
@@ -171,6 +171,11 @@ try {
         ]);
 
         // process empty bill
+
+        if ($home->getLastError()) {
+            $bot->sendMessage($message->getChat()->getId(), 'There was a problem performing your request. Please try again later.', false, null, null, $keyboard);
+            return;
+        }
 
         if (empty($bills)) {
             $bot->sendMessage($message->getChat()->getId(), 'It is sad, but nothing is found. Try another location or time.', false, null, null, $keyboard);
