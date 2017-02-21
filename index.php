@@ -119,7 +119,7 @@ try {
 
         $url = $config['api_url'] . 'site/filter';
 
-        $time_from = (new \DateTime('now', new \DateTimeZone('Europe/Kiev')))->modify('-5 hours');
+        $time_from = new \DateTime('now', new \DateTimeZone('Europe/Kiev'));
         $time_to = clone $time_from;
         $time_to->modify('+1 hour');
 
