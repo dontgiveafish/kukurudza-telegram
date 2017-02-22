@@ -5,8 +5,6 @@ require_once __DIR__ . '/lib/Buzz/Service.php';
 
 $config = require_once __DIR__ . '/config.php';
 
-$url = $config['api_url'] . 'site/premieres';
-
 $date_from = new DateTime('next thursday', new \DateTimeZone('Europe/Kiev'));
 $date_to = clone $date_from;
 $date_to->modify('+6 days');
@@ -30,12 +28,12 @@ $message = '';
 
 foreach ($movies as $movie) {
 
-    $message .= "<a href='http://kinoafisha.ua/ua/films/{$movie->alias}'>{$movie->title}</a>" . PHP_EOL;
+    $message .= "<a href='http://kinoafisha.ua/ua/films/{$movie['alias']}'>{$movie['title']}</a>" . PHP_EOL;
 
-    if (!empty($movie->genres)) {
+    if (!empty($movie['genres'])) {
         $genres = [];
-        foreach ($movie->genres as $genre) {
-            $genres[] = $genre->title;
+        foreach ($movie['genres'] as $genre) {
+            $genres[] = $genre['title'];
         }
 
         $message .= implode(', ', $genres) . PHP_EOL;
