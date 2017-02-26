@@ -149,9 +149,9 @@ try {
 
         // build and call query
 
-        $home = new Buzz\Service('cinema');
+        $home = new Buzz\Service('', $config['api_url']);
 
-        $bills = $home->call('site/filter', [
+        $bills = $home->call('playbill', [
             'time_from' => $time_from->format('H:i'),
             'time_to' => $time_to->format('H:i'),
             'position_lat' => $location->getLatitude(),

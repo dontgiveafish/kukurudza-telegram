@@ -18,7 +18,7 @@ class Service
         $ssl = $ssl ? 's' : '';
 
         // generate host url
-        $this->host = "http{$ssl}://{$service}{$domain}/";
+        $this->host = "http{$ssl}://{$service}{$domain}/api/";
 
         // init curl
         $curl = curl_init();
@@ -61,11 +61,11 @@ class Service
             }
         }
         catch (\Exception $ex) {
+            error_log('Buzz\Error: ' . $ex->getMessage());
             $this->last_error = $ex;
         }
 
-//        return @$answer['data'];
-        return $answer;
+        return @$answer['data'];
     }
 
     /**

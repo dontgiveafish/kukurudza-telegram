@@ -13,7 +13,7 @@ $mp = Mixpanel::getInstance($config['mixpanel_project_token']);
 
 // build and call query
 
-$home = new Buzz\Service('cinema');
+$home = new Buzz\Service('', $config['api_url']);
 
 $movies = $home->call('site/premieres', [
     'date_from' => $date_from->format('Y-m-d'),
