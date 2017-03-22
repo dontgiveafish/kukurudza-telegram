@@ -7,7 +7,7 @@ class Service
     private $host;
     private $last_error;
 
-    public function __construct($service, $domain = 'dontgiveafish.com', $ssl = false)
+    public function __construct($service, $domain = 'kukurudza.com', $ssl = false)
     {
         // get subdomain
         if (!empty($service)) {

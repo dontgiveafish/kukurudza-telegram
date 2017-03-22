@@ -149,7 +149,7 @@ try {
 
         // build and call query
 
-        $home = new Buzz\Service('', $config['api_url']);
+        $home = new Buzz\Service('home');
 
         $bills = $home->call('playbill', [
             'time_from' => $time_from->format('H:i'),
