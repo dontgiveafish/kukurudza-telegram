@@ -28,7 +28,8 @@ $message = '';
 
 foreach ($movies as $movie) {
 
-    $message .= "<a href='http://kinoafisha.ua/ua/films/{$movie['alias']}'>{$movie['title']}</a>" . PHP_EOL;
+    $movie_link = "https://kukurudza.com/movie/index?alias={$movie['alias']}";
+    $message .= "<a href='{$movie_link}'>{$movie['title']}</a>" . PHP_EOL;
 
     if (!empty($movie['genres'])) {
         $genres = [];

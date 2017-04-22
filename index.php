@@ -207,10 +207,13 @@ try {
                 $genres = implode(', ', array_column($genres, 'title')) . PHP_EOL;
             }
 
+            $cinema_link = "https://kukurudza.com/cinema/item?alias={$bill['cinema']['alias']}";
+            $movie_link = "https://kukurudza.com/movie/index?alias={$bill['movie']['alias']}";
+
             $output .=
                 "<b>$time</b> " . PHP_EOL .
-                "<a href='kinoafisha.ua/ua/cinema/{$bill['city']['alias']}/{$bill['cinema']['alias']}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
-                "<a href='http://kinoafisha.ua/ua/films/{$bill['movie']['alias']}'>{$bill['movie']['title']}</a>" . PHP_EOL .
+                "<a href='{$cinema_link}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
+                "<a href='{$movie_link}'>{$bill['movie']['title']}</a>" . PHP_EOL .
                 $genres .
                 PHP_EOL;
         }
