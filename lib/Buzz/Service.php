@@ -20,36 +20,33 @@ class Service
         // generate host url
         $this->host = "http{$ssl}://{$service}{$domain}/api/";
 
-        // init curl
-        $curl = curl_init();
-
-//        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION , 1);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'buzz');
-
-        $this->curl = $curl;
+        // init guzzle client
+        $this->client = new \GuzzleHttp\Client([
+            'base_uri' => $this->host
+        ]);
     }
 
     public function call($endpoint, array $data = null)
     {
-        $last_error = false;
-        $query = http_build_query($data);
-        $url = "{$this->host}$endpoint?$query";
-
         try {
-            curl_setopt($this->curl, CURLOPT_URL, $url);
-//            curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($data));
+
+            // @todo move to POST requests
+            $response = $this->client->get($endpoint, [
+                'query' => $data,
+            ]);
 
             // get answer and decode
 
-            $str = curl_exec($this->curl);
+            $str = $response->getBody()->getContents();
             $answer = json_decode($str, true);
+
+            $status_code = $response->getStatusCode();
+            $reason_phrase = $response->getReasonPhrase();
 
             // check for errors
 
-            if (curl_error($this->curl)) {
-                throw new \Exception('Curl error: ' . curl_error($this->curl));
+            if ($status_code != 200) {
+                throw new \Exception("Got $status_code with message '$reason_phrase '");
             }
 
             if (json_last_error()) {
@@ -59,6 +56,8 @@ class Service
             if (!empty($answer['error']['message'])) {
                 throw new \Exception($answer['error']['message'], @$answer['error']['code']);
             }
+
+            $this->last_error = false;
         }
         catch (\Exception $ex) {
             error_log('Buzz\Error: ' . $ex->getMessage());

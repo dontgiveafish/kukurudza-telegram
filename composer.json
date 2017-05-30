@@ -1,6 +1,7 @@
 {
     "require": {
         "telegram-bot/api": "^2.2",
-        "mixpanel/mixpanel-php" : "2.*"
+        "mixpanel/mixpanel-php" : "2.*",
+        "guzzlehttp/guzzle": "^6.2"
     }
 }
