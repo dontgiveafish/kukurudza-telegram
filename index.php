@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/lib/Buzz/Service.php';
+require_once __DIR__ . '/lib/Helpers/Location.php';
 
 try {
 
@@ -15,6 +16,16 @@ try {
         $givemesomemoviesbutton = [
             'text' => 'Give me some movies!',
             'request_location' => true,
+        ];
+
+        // @todo move to actions
+        $commands = [
+            'Give me some movies!',
+            'wider',
+            'nearer',
+            'later',
+            'earlier',
+            'go back'
         ];
 
         $maxd = 2500;
@@ -35,6 +46,19 @@ try {
         ]);
 
         $mp->track('telegram_message_received');
+
+        // try to get location from text
+
+        if (empty($location) && !empty($text) && !in_array(strtolower($text, $commands)))
+        {
+            $address = implode(', ', [
+                'Україна',
+                'Київ',
+                $text
+            ]);
+
+            $location = \Helpers\Location::createFromAddress($address);
+        }
 
         if (empty($location)) {
 
