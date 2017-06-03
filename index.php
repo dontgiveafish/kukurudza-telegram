@@ -6,7 +6,7 @@ require_once __DIR__ . '/lib/Helpers/Location.php';
 
 try {
 
-    $config = require_once __DIR__ . '/config.php';
+    $config = require __DIR__ . '/config.php';
     $bot = new \TelegramBot\Api\Client($config['bot_token'], $config['bot_tracker']);
 
     $bot->on(function(\TelegramBot\Api\Types\Message $message) use ($bot, $config) {
@@ -14,18 +14,17 @@ try {
         // more config
 
         $givemesomemoviesbutton = [
-            'text' => 'Give me some movies!',
+            'text' => 'Що у кіно зараз і поруч?',
             'request_location' => true,
         ];
 
         // @todo move to actions
         $commands = [
-            'Give me some movies!',
-            'wider',
-            'nearer',
-            'later',
-            'earlier',
-            'go back'
+            'що у кіно зараз і поруч?',
+            'подалі',
+            'ближче',
+            'пізніше',
+            'раніше',
         ];
 
         $maxd = 2500;
@@ -47,9 +46,15 @@ try {
 
         $mp->track('telegram_message_received');
 
+        // send typing chat action
+
+        $bot->sendChatAction($message->getChat()->getId(), 'typing');
+
         // try to get location from text
 
-        if (empty($location) && !empty($text) && !in_array(strtolower($text, $commands)))
+        $command = mb_strtolower($text, 'utf8');
+
+        if (empty($location) && !empty($text) && !in_array($command, $commands))
         {
             $address = implode(', ', [
                 'Україна',
@@ -58,6 +63,15 @@ try {
             ]);
 
             $location = \Helpers\Location::createFromAddress($address);
+            if (empty($location)) {
+                $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup([[$givemesomemoviesbutton]], null, true);
+                $bot->sendMessage($message->getChat()->getId(), 'Перепрошую, але треба уточнити ваше розташування. Надішліть свою локацію у вкладенні, або вкажіть точніше вашу вулицю чи район.', false, null, null, $keyboard);
+                return;
+            }
+
+
+
+            $first_state = true;
         }
 
         if (empty($location)) {
@@ -71,9 +85,9 @@ try {
 
             // make decision from message test
 
-            if (empty($state) || !in_array($text, ['wider', 'later', 'nearer', 'earlier'])) {
+            if (empty($state) || !in_array($command, ['подалі', 'пізніше', 'ближче', 'раніше'])) {
                 $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup([[$givemesomemoviesbutton]], null, true);
-                $bot->sendMessage($message->getChat()->getId(), 'Please give me your location first', false, null, null, $keyboard);
+                $bot->sendMessage($message->getChat()->getId(), 'Щоб підібрати сеанс, надішліть мені свою локацію', false, null, null, $keyboard);
                 return;
             }
 
@@ -83,17 +97,17 @@ try {
             $location->setLatitude($state['location']['latitude']);
             $location->setLongitude($state['location']['longitude']);
 
-            if ($text == 'wider') {
+            if ($command == 'подалі') {
                 ++$distance_d;
             }
-            elseif ($text == 'nearer') {
+            elseif ($command == 'ближче') {
                 --$distance_d;
                 if ($distance_d < 1 ) $distance_d = 1;
             }
-            elseif ($text == 'later') {
+            elseif ($command == 'пізніше') {
                 ++$time_d;
             }
-            elseif ($text == 'earlier') {
+            elseif ($command == 'раніше') {
                 --$time_d;
             }
 
@@ -123,17 +137,17 @@ try {
 
         // create keyboard
 
-        if (empty($text)) {
+        if (empty($text) || !empty($first_state)) {
             $buttons = [
-                ['wider', 'later'],
-                ['go back']
+                ['Подалі', 'Пізніше'],
+                [$givemesomemoviesbutton]
             ];
         }
         else {
             $buttons = [
-                ['wider', 'later'],
-                ['nearer', 'earlier'],
-                ['go back']
+                ['Подалі', 'Пізніше'],
+                ['Ближче', 'Раніше'],
+                [$givemesomemoviesbutton]
             ];
         }
 
@@ -160,17 +174,6 @@ try {
         $mind = (($distance_d ?: 1) - 1) * $maxd;
         $maxd = ($distance_d ?: 1) * $maxd;
 
-        // explain filter
-
-        $explainer =  implode(', ', [
-            'mind=' . $mind,
-            'maxd=' . $maxd,
-            'from=' . $time_from->format('H:i'),
-            'to=' . $time_to->format('H:i'),
-        ]);
-
-        $bot->sendMessage($message->getChat()->getId(), $explainer, false, null, null, $keyboard);
-
         // build and call query
 
         $home = new Buzz\Service('home');
@@ -195,12 +198,12 @@ try {
         // process empty bill
 
         if ($home->getLastError()) {
-            $bot->sendMessage($message->getChat()->getId(), 'There was a problem performing your request. Please try again later.', false, null, null, $keyboard);
+            $bot->sendMessage($message->getChat()->getId(), 'Овва! Щось сталося із сервером, будь ласка, зайдіть пізніше.', false, null, null, $keyboard);
             return;
         }
 
         if (empty($bills)) {
-            $bot->sendMessage($message->getChat()->getId(), 'It is sad, but nothing is found. Try another location or time.', false, null, null, $keyboard);
+            $bot->sendMessage($message->getChat()->getId(), 'Це сумно, але нічого немає. Спробуйте інший час або локацію.', false, null, null, $keyboard);
             return;
         }
 
