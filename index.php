@@ -237,10 +237,15 @@ try {
             $cinema_link = "https://kukurudza.com/cinema/item?alias={$bill['cinema']['alias']}";
             $movie_link = "https://kukurudza.com/movie/index?alias={$bill['movie']['alias']}";
 
+            $location_query = http_build_query([
+                'pos_lat' => $location->getLatitude(),
+                'pos_lng' => $location->getLongitude(),
+            ]);
+
             $output .=
                 "<b>$time</b> " . PHP_EOL .
-                "<a href='{$cinema_link}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
-                "<a href='{$movie_link}'>{$bill['movie']['title']}</a>" . PHP_EOL .
+                "<a href='{$cinema_link}&{$location_query}'>{$bill['cinema']['title']}</a>" . PHP_EOL .
+                "<a href='{$movie_link}&{$location_query}'>{$bill['movie']['title']}</a>" . PHP_EOL .
                 $genres .
                 PHP_EOL;
         }
