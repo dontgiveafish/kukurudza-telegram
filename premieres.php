@@ -66,13 +66,26 @@ foreach ($states as $state) {
 
     $user_message = "Привіт, {$user_name}, ось прем'єри цього тижня:\n\n{$message}";
 
-    $bot->sendMessage($chat_id, $user_message, 'HTML', true);
+    try {
+        $bot->sendMessage($chat_id, $user_message, 'HTML', true);
 
-    // track
+        // track
 
-    $mp->track('telegram_message_sent', [
-        'subject' => 'premieres',
-        'chat_id' => $chat_id,
-    ]);
+        $mp->track('telegram_message_sent', [
+            'subject' => 'premieres',
+            'chat_id' => $chat_id,
+        ]);
+    }
+    catch (\Exception $e) {
+        $message = $e->getMessage();
+
+        // track
+        error_log($message);
+        $mp->track('telegram_message_sending_error', [
+            'subject' => 'premieres',
+            'chat_id' => $chat_id,
+            'error' => $message,
+        ]);
+    }
 
 }
