@@ -77,14 +77,14 @@ foreach ($states as $state) {
         ]);
     }
     catch (\Exception $e) {
-        $message = $e->getMessage();
+        $exception_message = $e->getMessage();
 
         // track
-        error_log($message);
+        error_log($exception_message);
         $mp->track('telegram_message_sending_error', [
             'subject' => 'premieres',
             'chat_id' => $chat_id,
-            'error' => $message,
+            'error' => $exception_message,
         ]);
     }
 
