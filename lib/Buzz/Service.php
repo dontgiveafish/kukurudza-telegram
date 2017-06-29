@@ -4,8 +4,8 @@ namespace Buzz;
 
 class Service
 {
-    private $host;
-    private $last_error;
+    protected $host;
+    protected $last_error;
 
     public function __construct($service, $domain = 'kukurudza.com', $ssl = false)
     {
@@ -24,6 +24,12 @@ class Service
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $this->host
         ]);
+    }
+
+    public function __call($controller_name, $arguments)
+    {
+        $contoller = new Controller($this, $controller_name);
+        return $contoller;
     }
 
     public function call($endpoint, array $data = null)
