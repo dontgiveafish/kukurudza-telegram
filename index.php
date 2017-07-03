@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/lib/Buzz/Service.php';
+require_once __DIR__ . '/lib/Buzz/Controller.php';
 require_once __DIR__ . '/lib/Helpers/Location.php';
 
 try {
@@ -178,7 +179,7 @@ try {
 
         $home = new Buzz\Service('home');
 
-        $bills = $home->call('playbill', [
+        $bills = $home->playbill()->index([
             'time_from' => $time_from->format('H:i'),
             'time_to' => $time_to->format('H:i'),
             'position_lat' => $location->getLatitude(),

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/lib/Buzz/Service.php';
+require_once __DIR__ . '/lib/Buzz/Controller.php';
 
 $config = require_once __DIR__ . '/config.php';
 
@@ -15,7 +16,7 @@ $mp = Mixpanel::getInstance($config['mixpanel_project_token']);
 
 $home = new Buzz\Service('home');
 
-$movies = $home->call('playbill/premieres', [
+$movies = $home->playbill()->premieres([
     'date_from' => $date_from->format('Y-m-d'),
     'date_to' => $date_to->format('Y-m-d'),
 ]);
